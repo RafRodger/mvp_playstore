@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Predictor Google Play Store</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f1f3f4; min-height: 100vh; }
+
+    .header {
+      background: linear-gradient(135deg, #01875f, #00c853);
+      padding: 36px 24px 52px;
+      text-align: center;
+    }
+    .header-icon {
+      width: 60px; height: 60px; background: white; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 14px; font-size: 30px;
+    }
+    .header h1 { color: white; font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+    .header p { color: rgba(255,255,255,0.85); font-size: 13px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,0.2); color: white;
+      font-size: 11px; padding: 4px 12px; border-radius: 20px; margin-top: 10px;
+    }
+
+    .form-card {
+      background: white; border-radius: 16px;
+      margin: -24px 16px 20px; padding: 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      position: relative; z-index: 1;
+      max-width: 540px; margin-left: auto; margin-right: auto;
+    }
+
+    .section-title {
+      font-size: 11px; font-weight: 600; color: #01875f;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      margin: 0 0 16px; display: flex; align-items: center; gap: 6px;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; color: #666; margin-bottom: 5px; font-weight: 500; }
+
+    .input-with-icon { position: relative; }
+    .input-with-icon i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #999; font-size: 16px; }
+    .input-with-icon input { padding-left: 34px; }
+
+    input, select {
+      width: 100%; padding: 10px 12px; border: 1px solid #e0e0e0;
+      border-radius: 8px; font-size: 14px; color: #333; outline: none;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+    input:focus, select:focus {
+      border-color: #01875f;
+      box-shadow: 0 0 0 3px rgba(1,135,95,0.12);
+    }
+
+    .divider { height: 1px; background: #f0f0f0; margin: 18px 0; }
+
+    .type-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .type-btn {
+      padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px;
+      background: white; color: #666; font-size: 13px; font-weight: 500;
+      cursor: pointer; text-align: center; transition: all 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .type-btn.active { border-color: #01875f; background: #e8f5e9; color: #01875f; }
+
+    .btn-predict {
+      width: 100%; padding: 14px; background: #01875f; color: white;
+      border: none; border-radius: 10px; font-size: 15px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      gap: 8px; transition: background 0.2s; margin-top: 4px;
+    }
+    .btn-predict:hover { background: #016d4c; }
+    .btn-predict:active { transform: scale(0.99); }
+    .btn-predict:disabled { background: #a5d6a7; cursor: not-allowed; }
+
+    #resultado { margin-top: 16px; padding: 18px; border-radius: 10px; text-align: center; display: none; }
+    .exito { background: #e8f5e9; border: 1px solid #a5d6a7; }
+    .fracaso { background: #fce8e6; border: 1px solid #ef9a9a; }
+    .res-icon { font-size: 32px; margin-bottom: 8px; }
+    .exito .res-icon { color: #2e7d32; }
+    .fracaso .res-icon { color: #c62828; }
+    .res-text { font-size: 16px; font-weight: 600; }
+    .exito .res-text { color: #1b5e20; }
+    .fracaso .res-text { color: #b71c1c; }
+    .res-sub { font-size: 12px; margin-top: 5px; }
+    .exito .res-sub { color: #388e3c; }
+    .fracaso .res-sub { color: #c62828; }
+
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .spinning { animation: spin 1s linear infinite; display: inline-block; }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">▶</div>
+  <h1>Predictor de Éxito</h1>
+  <p>Google Play Store — Ensemble Learning</p>
+  <div class="badge"><i class="ti ti-cpu"></i> IA · Random Forest + GBM + KNN</div>
+</div>
+
+<div class="form-card">
+  <p class="section-title"><i class="ti ti-chart-bar"></i> Métricas de la app</p>
+
+  <div class="grid-2">
+    <div class="field">
+      <label>Rating (0 – 5)</label>
+      <div class="input-with-icon">
+        <i class="ti ti-star"></i>
+        <input type="number" id="rating" step="0.1" min="0" max="5" placeholder="4.2">
+      </div>
+    </div>
+    <div class="field">
+      <label>Número de reseñas</label>
+      <div class="input-with-icon">
+        <i class="ti ti-message"></i>
+        <input type="number" id="reviews" placeholder="15000">
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="field">
+      <label>Tamaño APK (KB)</label>
+      <div class="input-with-icon">
+        <i class="ti ti-download"></i>
+        <input type="number" id="size" placeholder="12288">
+      </div>
+    </div>
+    <div class="field">
+      <label>Precio (0 = gratis)</label>
+      <div class="input-with-icon">
+        <i class="ti ti-currency-dollar"></i>
+        <input type="number" id="price" step="0.01" placeholder="0">
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <p class="section-title"><i class="ti ti-apps"></i> Clasificación</p>
+
+  <div class="field">
+    <label>Tipo de app</label>
+    <div class="type-toggle">
+      <button class="type-btn active" id="btn-free" onclick="setType('Free')">
+        <i class="ti ti-gift"></i> Gratis
+      </button>
+      <button class="type-btn" id="btn-paid" onclick="setType('Paid')">
+        <i class="ti ti-credit-card"></i> De pago
+      </button>
+    </div>
+    <input type="hidden" id="type" value="Free">
+  </div>
+
+  <div class="field">
+    <label>Categoría</label>
+    <select id="category">
+      <option value="ART_AND_DESIGN">Arte y Diseño</option>
+      <option value="AUTO_AND_VEHICLES">Autos y Vehículos</option>
+      <option value="BEAUTY">Belleza</option>
+      <option value="BOOKS_AND_REFERENCE">Libros y Referencia</option>
+      <option value="BUSINESS">Negocios</option>
+      <option value="COMICS">Cómics</option>
+      <option value="COMMUNICATION">Comunicación</option>
+      <option value="DATING">Citas</option>
+      <option value="EDUCATION">Educación</option>
+      <option value="ENTERTAINMENT">Entretenimiento</option>
+      <option value="EVENTS">Eventos</option>
+      <option value="FINANCE">Finanzas</option>
+      <option value="FOOD_AND_DRINK">Comida y Bebida</option>
+      <option value="HEALTH_AND_FITNESS">Salud y Fitness</option>
+      <option value="HOUSE_AND_HOME">Hogar</option>
+      <option value="LIBRARIES_AND_DEMO">Librerías y Demo</option>
+      <option value="LIFESTYLE">Estilo de Vida</option>
+      <option value="GAME">Juegos</option>
+      <option value="FAMILY">Familia</option>
+      <option value="MEDICAL">Médico</option>
+      <option value="SOCIAL">Social</option>
+      <option value="SHOPPING">Compras</option>
+      <option value="PHOTOGRAPHY">Fotografía</option>
+      <option value="SPORTS">Deportes</option>
+      <option value="TRAVEL_AND_LOCAL">Viajes y Local</option>
+      <option value="TOOLS">Herramientas</option>
+      <option value="PERSONALIZATION">Personalización</option>
+      <option value="PRODUCTIVITY">Productividad</option>
+      <option value="PARENTING">Crianza</option>
+      <option value="WEATHER">Clima</option>
+      <option value="VIDEO_PLAYERS">Reproductores de Video</option>
+      <option value="NEWS_AND_MAGAZINES">Noticias y Revistas</option>
+      <option value="MAPS_AND_NAVIGATION">Mapas y Navegación</option>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>Clasificación de contenido</label>
+    <select id="content_rating">
+      <option value="Everyone">Everyone — Para todos</option>
+      <option value="Teen">Teen — Para adolescentes</option>
+      <option value="Everyone 10+">Everyone 10+ — Mayores de 10</option>
+      <option value="Mature 17+">Mature 17+ — Mayores de 17</option>
+      <option value="Adults only 18+">Adults only 18+ — Solo adultos</option>
+      <option value="Unrated">Unrated — Sin clasificar</option>
+    </select>
+  </div>
+
+  <button class="btn-predict" id="btn-predict" onclick="predecir()">
+    <i class="ti ti-sparkles"></i> Predecir éxito
+  </button>
+
+  <div id="resultado"></div>
+</div>
+
+<script>
+  function setType(val) {
+    document.getElementById('type').value = val;
+    document.getElementById('btn-free').classList.toggle('active', val === 'Free');
+    document.getElementById('btn-paid').classList.toggle('active', val === 'Paid');
+  }
+
+  async function predecir() {
+    const btn = document.getElementById('btn-predict');
+    btn.innerHTML = '<i class="ti ti-loader spinning"></i> Analizando...';
+    btn.disabled = true;
+
+    const body = new FormData();
+    body.append('rating',         document.getElementById('rating').value);
+    body.append('reviews',        document.getElementById('reviews').value);
+    body.append('size',           document.getElementById('size').value);
+    body.append('price',          document.getElementById('price').value);
+    body.append('type',           document.getElementById('type').value);
+    body.append('category',       document.getElementById('category').value);
+    body.append('content_rating', document.getElementById('content_rating').value);
+
+    try {
+      const res  = await fetch('/predict', { method: 'POST', body });
+      const data = await res.json();
+      const div  = document.getElementById('resultado');
+      const esExito = data.resultado.includes('ÉXITO');
+
+      div.style.display = 'block';
+      div.className = esExito ? 'exito' : 'fracaso';
+      div.innerHTML = `
+        <div class="res-icon"><i class="ti ti-${esExito ? 'circle-check' : 'circle-x'}"></i></div>
+        <div class="res-text">${esExito ? 'La app tiene perfil de ÉXITO' : 'La app NO tiene perfil exitoso'}</div>
+        <div class="res-sub">${esExito
+          ? 'Basado en métricas de +10,000 apps analizadas'
+          : 'Considera ajustar las métricas antes del lanzamiento'}</div>
+      `;
+    } catch (e) {
+      alert('Error al conectar con el servidor. Asegúrate de que Flask está corriendo.');
+    }
+
+    btn.innerHTML = '<i class="ti ti-sparkles"></i> Predecir éxito';
+    btn.disabled = false;
+  }
+</script>
+</body>
+</html>
